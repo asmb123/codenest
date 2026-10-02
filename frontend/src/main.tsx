@@ -6,15 +6,18 @@ import { BrowserRouter, Routes, Route } from 'react-router'
 import { Home } from './pages/Home.tsx'
 import { CodeEditor } from './pages/CodeEditor.tsx'
 import { ErrorPage } from './pages/ErrorPage.tsx'
+import { ProtectedRoute } from './components/ProtectedRoute.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path='/home' element={<Home />} />
-        <Route path='/' element={<App />} />
         <Route path='/error' element={<ErrorPage />} />
         <Route path='/:userId/:lang' element={<CodeEditor />} />
+        <Route path='/' element={<App />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path='/home' element={<Home />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   </StrictMode>,
