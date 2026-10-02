@@ -1,6 +1,6 @@
 import { Editor } from "@monaco-editor/react";
 
-export const EditorComponent = ({ language }: { language: string }) => {
+export const EditorComponent = ({ language, value }: { language: string, value: string }) => {
     const languageMap: Record<string, string> = {
         "base-nodejs": "javascript",
         "base-python": "python",
@@ -12,6 +12,7 @@ export const EditorComponent = ({ language }: { language: string }) => {
 
     return (
         <Editor
+            value={value}
             theme="vs-dark"
             defaultLanguage={monacoLanguage}
             language={monacoLanguage}

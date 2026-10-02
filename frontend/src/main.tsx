@@ -13,10 +13,10 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <Routes>
         <Route path='/error' element={<ErrorPage />} />
-        <Route path='/:userId/:lang' element={<CodeEditor />} />
         <Route path='/' element={<App />} />
         <Route element={<ProtectedRoute />}>
           <Route path='/home' element={<Home />} />
+          <Route path='/:username/:userId/:lang' element={<CodeEditor />} />
         </Route>
       </Routes>
     </BrowserRouter>
