@@ -18,19 +18,59 @@ export const CodeEditor = () => {
   useEffect(() => {
 
     const getFiles = async (url: string) => {
+
+      const textExtensions = [
+        ".ts", ".tsx", ".js", ".jsx",
+        ".json", ".html", ".css",
+        ".md", ".txt",
+        ".go", ".mod", ".sum",
+        ".py", ".java", ".c", ".cpp",
+        ".h", ".hpp",
+        ".yaml", ".yml",
+        ".toml", ".env",
+        ".sh"
+      ];
+
+      const textFileNames = [
+        ".gitignore",
+        "Dockerfile",
+        "Makefile"
+      ];
+
+      const binaryExtensions = [
+        ".png", ".jpg", ".jpeg", ".gif",
+        ".webp", ".ico",
+        ".pdf",
+        ".zip", ".gz", ".tar",
+        ".woff", ".woff2", ".ttf",
+        ".mp3", ".mp4"
+      ];
+
       const mp = new Map<string, string>();
       const parsedUrl = new URL(url);
       const filePath = decodeURIComponent(
         parsedUrl.pathname.slice(1)
       );
+      const lowerPath = filePath.toLowerCase();
       const txt = await axios.get(url, { responseType: "arraybuffer" });
       const contentType = String(txt.headers["content-type"]) || "";
 
-      const isTextFile =
+      const hasTextMimeType =
         contentType.startsWith("text/") ||
         contentType.includes("application/json") ||
         contentType.includes("application/javascript") ||
         contentType.includes("application/xml");
+
+      const hasTextExtension =
+        textExtensions.some(ext => lowerPath.endsWith(ext)) ||
+        textFileNames.some(name => lowerPath.endsWith(name.toLowerCase()));
+
+      const hasBinaryExtension =
+        binaryExtensions.some(ext => lowerPath.endsWith(ext));
+
+      const isTextFile =
+        !hasBinaryExtension &&
+        (hasTextMimeType || hasTextExtension);
 
       if (!isTextFile) {
         console.log("Skipping binary file:", filePath, contentType);
@@ -112,6 +152,58 @@ export const CodeEditor = () => {
     setSelectedFile(key);
   }
 
+  const getEditorLanguage = (filename: string | undefined) => {
+    if (!filename) return "plaintext";
+
+    const extension = filename.split(".").pop()?.toLowerCase();
+
+    switch (extension) {
+      case "js":
+      case "jsx":
+        return "javascript";
+
+      case "ts":
+      case "tsx":
+        return "typescript";
+
+      case "md":
+        return "markdown";
+
+      case "go":
+        return "go";
+
+      case "css":
+        return "css";
+
+      case "html":
+        return "html";
+
+      case "c":
+        return "c";
+
+      case "cpp":
+      case "cc":
+      case "cxx":
+        return "cpp";
+
+      case "py":
+        return "python";
+
+      case "json":
+        return "json";
+
+      case "yaml":
+      case "yml":
+        return "yaml";
+
+      case "sh":
+        return "shell";
+
+      default:
+        return "plaintext";
+    }
+  };
+
   if (!userId || !lang) {
     return <div>Invalid URL</div>;
   }
@@ -137,34 +229,7 @@ export const CodeEditor = () => {
           <div className="w-[80vw] py-2 px-5 h-full border border-white flex flex-col overflow-y-auto">
             <EditorComponent
               value={editorText}
-              language={(() => {
-                const filename = selectedFile;
-                const extension = filename ? filename.split('.').pop() : '';
-
-                if (extension === "js" || extension === "jsx") {
-                  return "javascript";
-                } else if (extension === "ts" || extension === "tsx") {
-                  return "typescript";
-                } else if (extension === "md") {
-                  return "markdown";
-                } else if (extension === "go" || extension === "golang") {
-                  return "go";
-                } else if (extension === "css") {
-                  return "css";
-                } else if (extension === "html") {
-                  return "html";
-                } else if (extension === "c") {
-                  return "c";
-                } else if (extension === "cpp") {
-                  return "cpp";
-                } else if (extension === "py") {
-                  return "python";
-                } else if (extension === "json") {
-                  return "json";
-                } else {
-                  return "plaintext";
-                }
-              })()} />
+              language={getEditorLanguage(String(selectedFile))} />
           </div>
         </div>
       )}
